@@ -28,12 +28,12 @@ const STUDENTS = [
   'نون عبدالرحيم عبيد'
 ];
 
-// Number to Arabic Words Conversion (Sudanese dialect)
+// Number to Arabic Words Conversion (Standard Formal Arabic for banking)
 const numberToArabicWords = (num) => {
-  const ones = ['', 'واحد', 'اتنين', 'تلاتة', 'أربعة', 'خمسة', 'ستة', 'سبعة', 'تمانية', 'تسعة'];
-  const tens = ['', '', 'عشرين', 'تلاتين', 'أربعين', 'خمسين', 'ستين', 'سبعين', 'تمانين', 'تسعين'];
-  const teens = ['عشرة', 'حداشر', 'اتناشر', 'تلتاشر', 'أربعتاشر', 'خمستاشر', 'ستاشر', 'سبعتاشر', 'تمنتاشر', 'تسعتاشر'];
-  const hundreds = ['', 'مية', 'ميتين', 'تلتمية', 'أربعمية', 'خمسمية', 'ستمية', 'سبعمية', 'تمنمية', 'تسعمية'];
+  const ones = ['', 'واحد', 'اثنان', 'ثلاثة', 'أربعة', 'خمسة', 'ستة', 'سبعة', 'ثمانية', 'تسعة'];
+  const tens = ['', '', 'عشرون', 'ثلاثون', 'أربعون', 'خمسون', 'ستون', 'سبعون', 'ثمانون', 'تسعون'];
+  const teens = ['عشرة', 'أحد عشر', 'اثنا عشر', 'ثلاثة عشر', 'أربعة عشر', 'خمسة عشر', 'ستة عشر', 'سبعة عشر', 'ثمانية عشر', 'تسعة عشر'];
+  const hundreds = ['', 'مائة', 'مائتان', 'ثلاثمائة', 'أربعمائة', 'خمسمائة', 'ستمائة', 'سبعمائة', 'ثمانمائة', 'تسعمائة'];
   
   if (num === 0) return 'صفر';
   
@@ -42,26 +42,47 @@ const numberToArabicWords = (num) => {
   
   if (number >= 1000000) {
     const millions = Math.floor(number / 1000000);
-    result += numberToArabicWords(millions) + ' مليون ';
-    return result + numberToArabicWords(number % 1000000);
+    if (millions === 1) result += 'مليون ';
+    else if (millions === 2) result += 'مليونان ';
+    else if (millions <= 10) result += numberToArabicWords(millions) + ' ملايين ';
+    else result += numberToArabicWords(millions) + ' مليون ';
+    
+    const remainder = number % 1000000;
+    if (remainder > 0) {
+      result += 'و' + numberToArabicWords(remainder);
+    }
+    return result;
   }
   
   if (number >= 1000) {
     const thousands = Math.floor(number / 1000);
     if (thousands === 1) result += 'ألف ';
-    else if (thousands === 2) result += 'ألفين ';
+    else if (thousands === 2) result += 'ألفان ';
+    else if (thousands <= 10) result += numberToArabicWords(thousands) + ' آلاف ';
     else result += numberToArabicWords(thousands) + ' ألف ';
-    return result + numberToArabicWords(number % 1000);
+    
+    const remainder = number % 1000;
+    if (remainder > 0) {
+      result += 'و' + numberToArabicWords(remainder);
+    }
+    return result;
   }
   
   if (number >= 100) {
-    result += hundreds[Math.floor(number / 100)] + ' ';
-    return result + numberToArabicWords(number % 100);
+    result += hundreds[Math.floor(number / 100)];
+    const remainder = number % 100;
+    if (remainder > 0) {
+      result += ' و' + numberToArabicWords(remainder);
+    }
+    return result;
   }
   
   if (number >= 20) {
-    result += tens[Math.floor(number / 10)] + ' ';
-    if (number % 10 !== 0) result += 'و' + ones[number % 10];
+    result += tens[Math.floor(number / 10)];
+    const remainder = number % 10;
+    if (remainder > 0) {
+      result += ' و' + ones[remainder];
+    }
     return result;
   }
   
@@ -217,38 +238,36 @@ const ElectronicCheckSystem = () => {
     
     if (!check) {
       alert('الشيك غير موجود');
-      setVerifiedCheck(null);
+      setVerifiedCheck({ isValid: false });
       return;
     }
     
-    // Verify PIN and signature
-    const checkString = JSON.stringify({ 
-      ...check, 
-      timestamp: check.timestamp,
-      securityPin: check.securityPin 
-    });
-    const expectedSignature = await generateHash(checkString.replace(check.securityPin, verifyPin));
+    // Simple PIN verification
+    const isValid = check.securityPin === verifyPin;
     
-    const isValid = check.securityPin === verifyPin && check.signature === expectedSignature;
-    
-    setVerifiedCheck({
-      ...check,
-      isValid,
-      verifiedAt: new Date().toISOString()
-    });
-    
-    // Generate QR for verification
-    setTimeout(() => {
-      if (verifyQrRef.current && isValid) {
-        const qrData = JSON.stringify({
-          checkNumber: check.checkNumber,
-          signature: check.signature,
-          timestamp: check.timestamp,
-          country: 'Sudan'
-        });
-        generateQRCode(qrData, verifyQrRef.current);
-      }
-    }, 100);
+    if (isValid) {
+      setVerifiedCheck({
+        ...check,
+        isValid: true,
+        verifiedAt: new Date().toISOString()
+      });
+      
+      // Generate QR for verification
+      setTimeout(() => {
+        if (verifyQrRef.current) {
+          const qrData = JSON.stringify({
+            checkNumber: check.checkNumber,
+            signature: check.signature,
+            timestamp: check.timestamp,
+            country: 'Sudan'
+          });
+          generateQRCode(qrData, verifyQrRef.current);
+        }
+      }, 100);
+    } else {
+      alert('رمز الأمان غير صحيح');
+      setVerifiedCheck({ isValid: false });
+    }
   };
   
   const downloadCheckPDF = () => {
@@ -280,7 +299,7 @@ const ElectronicCheckSystem = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50" dir="rtl">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50" dir="rtl" style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}>
       {/* Header */}
       <div className="bg-gradient-to-r from-blue-900 via-blue-800 to-indigo-900 text-white shadow-2xl">
         <div className="max-w-7xl mx-auto px-6 py-8">
