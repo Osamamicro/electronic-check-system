@@ -55,12 +55,6 @@ A comprehensive system to convert traditional paper checks into secure electroni
 - QRious (QR Code generation)
 - Lucide React (Icons)
 
-### **Planned (Phase 2)**
-
-- Node.js + Express.js (Backend)
-- PostgreSQL (Database)
-- JWT (Authentication)
-
 ---
 
 ## 🚀 التثبيت والتشغيل | Installation
@@ -79,7 +73,7 @@ npm >= 9.x
 git clone https://github.com/YOUR_USERNAME/sudanese-electronic-check-qr.git
 
 # 2. Navigate to project
-cd sudanese-electronic-check-qr
+cd electronic-check-system
 
 # 3. Install dependencies
 npm install
@@ -98,35 +92,16 @@ npm start
 
 ## 🗺 خارطة الطريق | Roadmap
 
-### **✅ Phase 1: Prototype (Current)**
+### **✅ Current Prototype**
 
 - [x] Frontend React application
 - [x] Check issuance system
 - [x] QR code generation
 - [x] Check verification
 - [x] Sudanese banks support
-
-### **🔄 Phase 2: Backend Development (In Progress)**
-
-- [ ] Node.js REST API
-- [ ] PostgreSQL database
-- [ ] User authentication
-- [ ] Advanced cryptography
-
-### **📅 Phase 3: Security & Integration**
-
-- [ ] Bank API integration
-- [ ] Blockchain implementation
-- [ ] Security audit
-- [ ] Mobile application
-
----
-
-## 🤝 المساهمة | Contributing
-
-نرحب بمساهماتكم! يرجى قراءة [CONTRIBUTING.md](docs/CONTRIBUTING.md)
-
----
+- [x] Arabic (RTL) interface
+- [x] SHA-256 data encryption
+- [x] Amount in Arabic text conversion
 
 ## 📄 الترخيص | License
 
@@ -148,6 +123,3 @@ MIT License - see [LICENSE](LICENSE) file
 - د/ ضياء الدين أحمد عوض الله
 
 ---
-
-**⭐ إذا أعجبك المشروع، لا تنسى إضافة نجمة!**
-**If you like this project, don't forget to give it a star!**
